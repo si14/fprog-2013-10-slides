@@ -246,7 +246,7 @@
           <ul>
             <li>очень легко написать эффективный tight loop
             <li>генерация кода для примитивов (полиморфизм для бедных)
-            <li>макросы *очень* полезны!
+            <li>макросы <i>очень</i> полезны!
             <li>баг (?) в Clojure замедляет компиляцию больших (10KLOC+) сорцев с тайпхинтами
             <li>AOT помогает
           </ul>
@@ -347,10 +347,9 @@
         <section>
           <h2>Актор</h2>
 <pre><code data-trim class="large clojure">(go (loop []
-      (debug "b")
-        (when-let [msg (&lt;! cs-c)]
-          (handler system config user msg sc-c)
-          (recur))))
+      (when-let [msg (&lt;! cs-c)]
+        (handler system config user msg sc-c)
+        (recur))))
 </code></pre>
         </section>
 
