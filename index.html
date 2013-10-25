@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+	<meta charset="utf-8">
+
+	<title>Clojure: обзор</title>
+
+	<meta name="description" content="Talk about Clojure in general">
+	<meta name="author" content="Dmitry Groshev">
+
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<link rel="stylesheet" href="css/reveal.css">
+	<!--
+        <link rel="stylesheet" href="css/theme/default.css" id="theme"> -->
+	<link rel="stylesheet" href="css/theme/serif.css" id="theme">
+
+	<!-- For syntax highlighting -->
+	<!-- <link rel="stylesheet" href="lib/css/zenburn.css"> -->
+	<link rel="stylesheet" href="lib/css/hemisu-light.css">
+
+	<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+	<script>
+	  document.write( '
+      <link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+	</script>
+
+	<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js">
+        </script>
+		<![endif]-->
+  </head>
+
+  <body>
+	<div class="reveal">
+	  <!-- Any section element inside of this container is displayed as a slide -->
+	  <div class="slides">
+		<section>
+		  <h1>Clojure</h1>
+		  <h3>обзор</h3>
+		  <p>
+			<small>Дмитрий Грошев (<a href="http://twitter.com/lambdadmitry">@lambdadmitry</a>)</small>
+		  </p>
+		</section>
+
+        <section>
+          <h2>План</h2>
+          <ul>
+            <li>демо: как начать
+            <li>демо: синтаксис и Emacs
+            <li>демо: Clony
+            <li>повседневное
+            <li>core.matrix
+            <li>CodeNotes
+            <li>vs Erlang
+          </ul>
+        </section>
+
+        <section>
+          <h1>Демо</h1>
+          <p>Как начать: Leiningen</p>
+        </section>
+
+        <section>
+          <h1>Демо</h1>
+          <p>синтаксис, Emacs, nrepl, paredit</p>
+        </section>
+
+        <section>
+          <h1>Демо</h1>
+          <p>Clony</p>
+        </section>
+
+        <section>
+          <h2>WARNING</h2>
+          <p>Слайды далее полны необоснованных утверждений</p>
+        </section>
+
+        <section>
+          <h1>Повседевное</h1>
+        </section>
+
+        <section>
+          <h2>Seq</h2>
+          <ul>
+            <li>универсальная абстракция
+              <li>Seqable
+              <li>линейная
+              <li>ленивая (!)
+              <li>chunked
+              <li>много функций для работы с Seq
+          </ul>
+<pre><code data-trim class="large clojure">(for [x [1 2 3]]
+    (prn x))
+</code></pre>
+<pre><code data-trim class="large clojure">(doseq [x [1 2 3]]
+    (prn x))
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Структуры данных: vector</h2>
+          <ul>
+            <li>ordered
+            <li>иммутабельный
+            <li>гетерогенный
+            <li>O(log32) get/set/delete
+            <li>O(1) append (справа)
+            <li>Seqable
+          </ul>
+<pre><code data-trim class="large clojure">(def test-vec [1 :a 2 3])
+(test-vec 1)      ; :a
+(take 2 test-vec) ; (1 :a)
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Структуры данных: map</h2>
+          <ul>
+            <li>O(log32) get/set/delete/insert
+            <li>Seqable
+          </ul>
+<pre><code data-trim class="large clojure">(def test-map {:a 1 :b 2})
+(test-map :a)     ; 1
+(:a test-map)     ; 1
+(get test-map :a) ; 1
+(seq test-map)    ; ([:a 1] [:b 2]) — KVPairs!
+(for [[k v] test-map] …)
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Atoms</h2>
+          <ul>
+            <li>CAS семантика
+            <li>swap!/reset!
+            <li>watchers
+            <li>кеши, system state в map'е
+          </ul>
+<pre><code data-trim class="large clojure">(def test-atom (atom 0))
+@test-atom            ; 0
+(swap! test-atom + 2) ; 3
+@test-atom            ; 3
+(reset! test-atom 42) ; 42
+@test-atom            ; 42
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Arrow macros</h2>
+          <pre><code data-trim class="large clojure">(-> 1 (+ ,,, 2) (* ,,, 3))</code></pre>
+        </section>
+
+        <section>
+          <h2>Arrow macros</h2>
+          <pre><code data-trim class="large clojure">(def test-map {:a {:b 2}))
+(-> test-map (:a) (:b)) ; 2</code></pre>
+        </section>
+
+        <section>
+          <h2>Arrow macros</h2>
+          <pre><code data-trim class="large clojure">(def test-map {:a {:b 2}))
+(-> test-map :a :b) ; 2</code></pre>
+        </section>
+
+        <section>
+          <h2>Arrow macros</h2>
+          <pre><code data-trim class="large clojure">(def some-vector […])
+(->> some-vector (take 2) (map some-fn) vec)</code></pre>
+        </section>
+
+        <section>
+          <h2>Arrow macros</h2>
+          <pre><code data-trim class="large clojure">(-> headers
+    (safe-get :x-ratelimit-reset)
+    Long/parseLong
+    (* 1000)
+    timec/from-long
+    timec/to-string)</code></pre>
+        </section>
+
+        <section>
+          <h1>core.matrix</h1>
+        </section>
+
+        <section>
+          <ul>
+            <li>GSoC 2013
+            <li>матричная библиотека на чистом Clojure
+            <li>сравнивая с Java скорость
+            <li>low-level
+          </ul>
+        </section>
+
+        <section>
+          <img src="ndarray.png">
+        </section>
+
+        <section>
+          <h2>JVM!</h2>
+          <ul>
+            <li>slow Clojure: reflection
+            <li>fast Clojure: type hints
+          </ul>
+          <pre><code data-trim class="large clojure">(deftype NDArray
+  [^doubles data
+   ^int ndims
+   ^ints shape
+   ^ints strides
+   ^int offset])</code></pre>
+          <p>±10% Java</p>
+        </section>
+
+        <section>
+          <h2>JVM!</h2>
+          <ul>
+            <li>slow Clojure: Object
+            <li>fast Clojure: primitive
+          </ul>
+          <pre><code data-trim class="large clojure">(defn dot-product [^doubles ws ^doubles xs]
+  (areduce xs i ret 0.0
+    (+ ret (* (aget xs i)
+              (aget ws i)))))</code></pre>
+          <p>±10% Java</p>
+        </section>
+
+        <section>
+          <h2>macros!</h2>
+          <pre><code data-trim class="large clojure">(c-for [k (int 0) (< k n) (inc k)]
+  (aset a (inc (aget a k))))</code></pre>
+        </section>
+
+        <section>
+          <h2>macros!</h2>
+          <pre><code data-trim class="large clojure">(require '[hiphip.double :as dbl])
+(defn dot-product [ws xs]
+  (dbl/asum [x xs w ws] (* x w)))</code></pre>
+        </section>
+
+        <section>
+          <h2>Уроки core.matrix</h2>
+          <ul>
+            <li>очень легко написать эффективный tight loop
+            <li>генерация кода для примитивов (полиморфизм для бедных)
+            <li>макросы *очень* полезны!
+            <li>баг (?) в Clojure замедляет компиляцию больших (10KLOC+) сорцев с тайпхинтами
+            <li>AOT помогает
+          </ul>
+        </section>
+
+        <section>
+          <h1>CodeNotes</h1>
+        </section>
+
+        <section>
+          <ul>
+            <li>победитель ClojureCup 2013
+            <li>отсутствующий таск-трекер
+          </ul>
+        </section>
+
+        <section>
+          <img src="codenotes.jpg">
+        </section>
+
+        <section>
+          <h2>Процесс разработки</h2>
+        </section>
+
+        <section>
+          <img src="hhdd.jpg">
+        </section>
+
+        <section>
+          <img src="integr.jpg">
+        </section>
+
+        <section>
+          <img src="hhdd.jpg">
+        </section>
+
+        <section>
+          <img src="integr.jpg">
+        </section>
+
+        <section>
+          <ul>
+            <li>очень легко писать код
+            <li>очень легко наговнякать рабочее решение
+            <li>рефакторить несложно
+            <li>но нужно рефакторить
+          </ul>
+        </section>
+
+        <section>
+          <h2>Идеология</h2>
+          <ul>
+            <li>libraries &gt;&gt;&gt; frameworks
+            <li>Fine-grained, Composable Abstractions (FCA)
+          </ul>
+        </section>
+
+        <section>
+          <ul>
+            <li>очень много готовых либ
+            <li>много <emph>очень</emph> крутых либ
+            <li>постоянные парадоксы выбора (большой search space)
+            <li>как организовать приложение?
+          </ul>
+        </section>
+
+        <section>
+          <h2>Anecdotal evidence</h2>
+          <ul>
+            <li>1-4 человека (мы): совместное владение кодом + рефакторинг
+            <li>…
+            <li>10+ людей (Prismatic): свои абстракции (не фреймворки!)
+          </ul>
+        </section>
+
+        <section>
+          <h1>vs Erlang</h1>
+        </section>
+
+        <section>
+          <ul>
+            <li>гораздо шире возможности
+            <li>очень много сахара
+            <li>инфраструктура и экосистема гораздо лучше, чем у Erlang
+          </ul>
+        </section>
+
+        <section>
+          <h2>core.async (vs Erlang)</h2>
+          <ul>
+            <li>first-order channels
+            <li>больше свободы, чем с акторами
+            <li>чуть сложнее, чем с акторами
+            <li>лучше, чем акторы?
+          </ul>
+        </section>
+
+        <section>
+          <h2>Актор</h2>
+<pre><code data-trim class="large clojure">(go (loop []
+      (debug "b")
+        (when-let [msg (&lt;! cs-c)]
+          (handler system config user msg sc-c)
+          (recur))))
+</code></pre>
+        </section>
+
+        <section>
+          <ul>
+            <li>core.async + core.match позволяют эмулировать акторов
+            <li>…но нет желания
+            <li>эмуляция дерева супервизоров неудобна
+            <li>…сложность обработки ошибок в JVM?
+            <li>можно выразить очень сложную логику коротко (conditional retry в 10 строк)
+          </ul>
+        </section>
+
+        <section>
+          <p>Erlang:</p>
+          <ul>
+            <li>узкие ниши (стриминговый сервер, «умный» роутер)
+            <li>большие команды
+          </ul>
+          <p>Clojure:</p>
+          <ul>
+            <li>маленькие высокопрофессиональные команды
+            <li>сложные задачи
+          </ul>
+        </section>
+
+        <section>
+          <h2>Вопросы?</h2>
+          Слайды: <a href="http://si14.github.io/fprog-2013-10-slides">si14.github.io/fprog-2013-10-slides</a>
+        </section>
+
+	  </div>
+	</div>
+
+	<script src="lib/js/head.min.js"></script>
+	<script src="js/reveal.min.js"></script>
+
+	<script>
+
+	  // Full list of configuration options available here:
+	  // https://github.com/hakimel/reveal.js#configuration
+	  Reveal.initialize({
+	  controls: false,
+	  progress: true,
+	  history: true,
+	  center: true,
+
+	  theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+	  transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+	  // Optional libraries used to extend on reveal.js
+	  dependencies: [
+	  { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+	  { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+	  { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+	  { src: 'plugin/highlight/highlight.js', async: true, callback: function() {  hljs.initHighlightingOnLoad(); } },
+	  { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+	  { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+	  // { src: 'plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } }
+	  // { src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+	  ]
+	  });
+
+	</script>
+
+  </body>
+</html>
